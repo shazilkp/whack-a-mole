@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function WhackAMole() {
   const [score, setScore] = useState(0);
+   const [highScore, setHighScore] = useState(0);
   const [activeMole, setActiveMole] = useState(null);
   const [timeLeft, setTimeLeft] = useState(30);
 
@@ -19,6 +20,11 @@ export default function WhackAMole() {
     return () => clearInterval(interval);
   }, [timeLeft]);
 
+    useEffect(() => {
+    const savedHigh = localStorage.getItem("whackamoleHighScore");
+    if (savedHigh) setHighScore(parseInt(savedHigh, 10));
+  }, []);
+
   // Countdown timer
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -30,8 +36,16 @@ export default function WhackAMole() {
 
   const hitMole = (index) => {
     if (index === activeMole) {
+      const newScore = score + 1;
       setScore(score + 1);
       setActiveMole(null);
+    
+
+
+     if (newScore > highScore) {
+        setHighScore(newScore);
+        localStorage.setItem("whackamoleHighScore", newScore);
+      }
     }
   };
 
@@ -52,6 +66,11 @@ export default function WhackAMole() {
             <span>⏱ {timeLeft}s</span>
             <span>⭐ {score}</span>
           </div>
+
+           {/* High Score */}
+          <p className="mb-4 text-sm text-gray-600">
+            🏆 High Score: <span className="font-bold">{highScore}</span>
+          </p>
 
           {/* Game grid */}
           {/* Game grid */}
@@ -78,16 +97,31 @@ export default function WhackAMole() {
 
 
           {/* Restart button */}
-          {timeLeft <= 0 && (
-            <div className="mt-6">
-              <p className="text-lg font-bold text-purple-700 mb-2">
-                Game Over! Final Score: {score}
-              </p>
-              <Button onClick={resetGame} className="bg-purple-600 text-white">
-                Restart
-              </Button>
-            </div>
-          )}
+{timeLeft <= 0 && (
+  <div className="mt-6 text-center">
+    <p className="text-lg font-bold text-purple-700 mb-2">
+      Game Over! Final Score: {score}
+    </p>
+
+    {score >= highScore ? (
+      <p className="text-md font-semibold text-green-600 mb-4">
+        🎉 New High Score: {score} 🎉
+      </p>
+    ) : (
+      <p className="text-md text-gray-700 mb-4">
+      
+      </p>
+    )}
+
+    <button
+      onClick={resetGame}
+      className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
+    >
+      Restart
+    </button>
+  </div>
+)}
+
         </CardContent>
       </Card>
     </div>
